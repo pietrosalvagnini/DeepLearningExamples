@@ -25,7 +25,7 @@ from ssd.utils import dboxes300_coco, Encoder
 from ssd.logger import Logger, BenchLogger
 from ssd.evaluate import evaluate
 from ssd.train import train_loop, tencent_trick, load_checkpoint, benchmark_train_loop, benchmark_inference_loop
-from ssd.data import get_train_loader, get_val_dataset, get_val_dataloader, get_coco_ground_truth, get_test_dataset
+from ssd.data import get_train_loader, get_val_dataset, get_val_dataloader, get_coco_ground_truth_validation, get_coco_ground_truth_test, get_test_dataset
 
 import dllogger as DLLogger
 
@@ -159,7 +159,8 @@ def train(train_loop_func, logger, args):
     # Setup data, defaults
     dboxes = dboxes300_coco()
     encoder = Encoder(dboxes)
-    cocoGt = get_coco_ground_truth(args)
+    cocoGt_val = get_coco_ground_truth_validation(args)
+    cocoGt_test = get_coco_ground_truth_test(args)
 
     train_loader = get_train_loader(args, args.seed - 2**31, skip_empty=args.skip_empty)
 
@@ -206,13 +207,13 @@ def train(train_loop_func, logger, args):
     total_time = 0
 
     if args.mode == 'evaluation':
-        acc = evaluate(ssd300, val_dataloader, cocoGt, encoder, inv_map, args)
+        acc = evaluate(ssd300, val_dataloader, cocoGt_val, encoder, inv_map, args)
         if args.local_rank == 0:
             print('Model precision {} mAP'.format(acc))
         return
 
     if args.mode == 'testing':
-        acc = evaluate(ssd300, test_dataloader, cocoGt, encoder, inv_map, args)
+        acc = evaluate(ssd300, test_dataloader, cocoGt_test, encoder, inv_map, args)
         if args.local_rank == 0:
             print('Model precision {} mAP'.format(acc))
         return
