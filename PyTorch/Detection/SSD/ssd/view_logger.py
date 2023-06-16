@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
 
+    # Train logger
     logger_files = []
     logger_files.append("/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/log/train_100pos_exp2_batch100k_skipempty.json")
     logger_files.append("/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/log/train_1000pos_exp2_batch100k_skipempty.json")
@@ -52,5 +53,6 @@ if __name__ == "__main__":
     plt.legend()
     plt.show()
 
+    # Test Logger
 
     print("Json read")

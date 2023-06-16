@@ -48,6 +48,7 @@ class COCOPipeline(Pipeline):
                                            ltrb=True,
                                            shuffle_after_epoch=True,
                                            skip_empty=skip_empty)
+        print(f"available coco attributes {dir(self.input)}")
         self.decode_slice = dali.ops.decoders.ImageSlice(device="cpu",
                                                          output_type=dali.types.RGB)
 

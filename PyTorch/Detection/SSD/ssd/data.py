@@ -23,12 +23,13 @@ from pycocotools.coco import COCO
 #DALI import
 from ssd.coco_pipeline import COCOPipeline, DALICOCOIterator
 
-def get_train_loader(args, local_seed, skip_empty):
+def get_train_loader(args, local_seed):
 #    train_annotate = os.path.join(args.data, "annotations/instances_train2017.json")
 #    train_coco_root = os.path.join(args.data, "train2017")
     train_annotate = os.path.join(args.data, "train_ann.json")
     train_coco_root = os.path.join(args.data, "train_images")
     num_train_images = len(os.listdir(train_coco_root))
+    print(f"Setting epoch size to {num_train_images}, 'skip_empty': {args.skip_empty}")
     #num_train_images = 100000
 
     train_pipe = COCOPipeline(batch_size=args.batch_size,
@@ -40,7 +41,7 @@ def get_train_loader(args, local_seed, skip_empty):
         output_fp16=args.amp,
         output_nhwc=False,
         pad_output=False,
-        num_threads=args.num_workers, seed=local_seed, skip_empty=skip_empty)
+        num_threads=args.num_workers, seed=local_seed, skip_empty=args.skip_empty)
     train_pipe.build()
     test_run = train_pipe.schedule_run(), train_pipe.share_outputs(), train_pipe.release_outputs()
     num_images_per_batch = num_train_images

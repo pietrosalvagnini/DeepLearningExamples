@@ -162,7 +162,7 @@ def train(train_loop_func, logger, args):
     cocoGt_val = get_coco_ground_truth_validation(args)
     cocoGt_test = get_coco_ground_truth_test(args)
 
-    train_loader = get_train_loader(args, args.seed - 2**31, skip_empty=args.skip_empty)
+    train_loader = get_train_loader(args, args.seed - 2**31)
 
     val_dataset = get_val_dataset(args)
     val_dataloader = get_val_dataloader(val_dataset, args)
