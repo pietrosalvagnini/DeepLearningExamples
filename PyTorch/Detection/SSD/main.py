@@ -212,7 +212,7 @@ def train(train_loop_func, logger, args):
         return
 
     if args.mode == 'testing':
-        acc = evaluate(ssd300, val_dataloader, cocoGt, encoder, inv_map, args)
+        acc = evaluate(ssd300, test_dataloader, cocoGt, encoder, inv_map, args)
         if args.local_rank == 0:
             print('Model precision {} mAP'.format(acc))
         return

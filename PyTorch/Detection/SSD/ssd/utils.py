@@ -443,8 +443,9 @@ class SSDTransformer(object):
         if self.val:
             bbox_out = torch.zeros(max_num, 4)
             label_out =  torch.zeros(max_num, dtype=torch.long)
-            bbox_out[:bbox.size(0), :] = bbox
-            label_out[:label.size(0)] = label
+            if bbox.size(0) > 0:
+                bbox_out[:bbox.size(0), :] = bbox
+                label_out[:label.size(0)] = label
             return self.trans_val(img), img_size, bbox_out, label_out
 
         img, img_size, bbox, label = self.crop(img, img_size, bbox, label)
