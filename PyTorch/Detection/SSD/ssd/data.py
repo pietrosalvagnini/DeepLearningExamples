@@ -87,7 +87,6 @@ def get_val_dataloader(dataset, args):
 def get_coco_ground_truth(args):
 #    val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
     val_annotate = os.path.join(args.data, "validation_ann.json")
-
     cocoGt = COCO(annotation_file=val_annotate, use_ext=True)
     return cocoGt
 
