@@ -28,6 +28,8 @@ def get_train_loader(args, local_seed, skip_empty):
 #    train_coco_root = os.path.join(args.data, "train2017")
     train_annotate = os.path.join(args.data, "train_ann.json")
     train_coco_root = os.path.join(args.data, "train_images")
+    num_train_images = len(os.listdir(train_coco_root))
+    #num_train_images = 100000
 
     train_pipe = COCOPipeline(batch_size=args.batch_size,
         file_root=train_coco_root,
@@ -41,8 +43,8 @@ def get_train_loader(args, local_seed, skip_empty):
         num_threads=args.num_workers, seed=local_seed, skip_empty=skip_empty)
     train_pipe.build()
     test_run = train_pipe.schedule_run(), train_pipe.share_outputs(), train_pipe.release_outputs()
-    num_images_per_batch = 100000
-    train_loader = DALICOCOIterator(train_pipe, num_images_per_batch / args.N_gpu)
+    num_images_per_batch = num_train_images
+    train_loader = DALICOCOIterator(train_pipe, num_train_images / args.N_gpu)
     return train_loader
 
 
