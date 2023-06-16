@@ -19,13 +19,15 @@ from torch.utils.data import DataLoader
 
 from ssd.utils import dboxes300_coco, COCODetection
 from ssd.utils import SSDTransformer
-from pycocotools.coco import COCO
+#from pycocotools.coco import COCO
 #DALI import
 from ssd.coco_pipeline import COCOPipeline, DALICOCOIterator
 
-def get_train_loader(args, local_seed):
-    train_annotate = os.path.join(args.data, "annotations/instances_train2017.json")
-    train_coco_root = os.path.join(args.data, "train2017")
+def get_train_loader(args, local_seed, skip_empty):
+#    train_annotate = os.path.join(args.data, "annotations/instances_train2017.json")
+#    train_coco_root = os.path.join(args.data, "train2017")
+    train_annotate = os.path.join(args.data, "train_ann.json")
+    train_coco_root = os.path.join(args.data, "train_images")
 
     train_pipe = COCOPipeline(batch_size=args.batch_size,
         file_root=train_coco_root,
@@ -36,10 +38,11 @@ def get_train_loader(args, local_seed):
         output_fp16=args.amp,
         output_nhwc=False,
         pad_output=False,
-        num_threads=args.num_workers, seed=local_seed)
+        num_threads=args.num_workers, seed=local_seed, skip_empty=skip_empty)
     train_pipe.build()
     test_run = train_pipe.schedule_run(), train_pipe.share_outputs(), train_pipe.release_outputs()
-    train_loader = DALICOCOIterator(train_pipe, 118287 / args.N_gpu)
+    num_images_per_batch = 100000
+    train_loader = DALICOCOIterator(train_pipe, num_images_per_batch / args.N_gpu)
     return train_loader
 
 
@@ -49,12 +52,23 @@ def get_val_dataset(args):
 
     #val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
     #val_coco_root = os.path.join(args.data, "val2017")
-    val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
-    val_coco_root = os.path.join(args.data, "val2017")
+    val_annotate = os.path.join(args.data, "validation_ann.json")
+    val_coco_root = os.path.join(args.data, "validation_images")
 
     val_coco = COCODetection(val_coco_root, val_annotate, val_trans)
     return val_coco
 
+def get_test_dataset(args):
+    dboxes = dboxes300_coco()
+    val_trans = SSDTransformer(dboxes, (300, 300), val=True)
+
+    #val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
+    #val_coco_root = os.path.join(args.data, "val2017")
+    val_annotate = os.path.join(args.data, "test_ann.json")
+    val_coco_root = os.path.join(args.data, "test_images")
+
+    val_coco = COCODetection(val_coco_root, val_annotate, val_trans)
+    return val_coco
 
 def get_val_dataloader(dataset, args):
     if args.distributed:
@@ -71,6 +85,9 @@ def get_val_dataloader(dataset, args):
     return val_dataloader
 
 def get_coco_ground_truth(args):
-    val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
+#    val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
+    val_annotate = os.path.join(args.data, "validation_ann.json")
+
     cocoGt = COCO(annotation_file=val_annotate, use_ext=True)
     return cocoGt
+

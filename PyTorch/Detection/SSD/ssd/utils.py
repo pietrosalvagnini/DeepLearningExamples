@@ -460,7 +460,7 @@ class SSDTransformer(object):
 
 # Implement a datareader for COCO dataset
 class COCODetection(data.Dataset):
-    def __init__(self, img_folder, annotate_file, transform=None):
+    def __init__(self, img_folder, annotate_file, transform=None, skip_empty=False):
         self.img_folder = img_folder
         self.annotate_file = annotate_file
 
@@ -497,9 +497,10 @@ class COCODetection(data.Dataset):
             bbox_label = self.label_map[bboxes["category_id"]]
             self.images[img_id][2].append((bbox, bbox_label))
 
-        for k, v in list(self.images.items()):
-            if len(v[2]) == 0:
-                self.images.pop(k)
+        if skip_empty:
+            for k, v in list(self.images.items()):
+                if len(v[2]) == 0:
+                    self.images.pop(k)
 
         self.img_keys = list(self.images.keys())
         self.transform = transform
@@ -593,3 +594,24 @@ def draw_patches(img, bboxes, labels, order="xywh", label_map={}):
         ax.text(cx-0.5*w, cy-0.5*h, label, ha="center", va="center", size=15, bbox=bbox_props)
     plt.show()
 
+
+if __name__ == "__main__":
+
+    #dataset_folder = "/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/real_colon_dataset_coco_fmt_3subsets_poslesion-1_allnegTrue"
+    dataset_folder = "/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/real_colon_dataset_coco_fmt_3subsets_poslesion1000_allnegFalse"
+    dboxes = dboxes300_coco()
+    val_trans = SSDTransformer(dboxes, (300, 300), val=True)
+
+    val_annotate = os.path.join(dataset_folder, "validation_ann.json")
+    val_coco_root = os.path.join(dataset_folder, "validation_images")
+
+    val_coco = COCODetection(val_coco_root, val_annotate, val_trans)
+    val_coco_no_empty = COCODetection(val_coco_root, val_annotate, val_trans, skip_empty=True)
+    print(f"Loaded validation set with {len(val_coco)} images, {len(val_coco_no_empty)} with boxes")
+
+    test_annotate = os.path.join(dataset_folder, "test_ann.json")
+    test_coco_root = os.path.join(dataset_folder, "test_images")
+
+    test_coco = COCODetection(test_coco_root, test_annotate, val_trans)
+    test_coco_no_empty = COCODetection(test_coco_root, test_annotate, val_trans, skip_empty=True)
+    print(f"Loaded test set with {len(test_coco)} images, {len(test_coco_no_empty)} with boxes")

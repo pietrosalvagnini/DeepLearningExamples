@@ -25,7 +25,7 @@ from ssd.utils import dboxes300_coco, Encoder
 from ssd.logger import Logger, BenchLogger
 from ssd.evaluate import evaluate
 from ssd.train import train_loop, tencent_trick, load_checkpoint, benchmark_train_loop, benchmark_inference_loop
-from ssd.data import get_train_loader, get_val_dataset, get_val_dataloader, get_coco_ground_truth
+from ssd.data import get_train_loader, get_val_dataset, get_val_dataloader, get_coco_ground_truth, get_test_dataset
 
 import dllogger as DLLogger
 
@@ -73,7 +73,7 @@ def make_parser():
     parser.add_argument('--save', type=str, default=None,
                         help='save model checkpoints in the specified directory')
     parser.add_argument('--mode', type=str, default='training',
-                        choices=['training', 'evaluation', 'benchmark-training', 'benchmark-inference'])
+                        choices=['training', 'evaluation', 'benchmark-training', 'benchmark-inference','testing'])
     parser.add_argument('--evaluation', nargs='*', type=int, default=[21, 31, 37, 42, 48, 53, 59, 64],
                         help='epochs at which to evaluate')
     parser.add_argument('--multistep', nargs='*', type=int, default=[43, 54],
@@ -111,6 +111,9 @@ def make_parser():
     parser.add_argument("--no-allow-tf32", dest='allow_tf32', action="store_false",
                         help="Disable TF32 computations.")
     parser.set_defaults(allow_tf32=True)
+    parser.add_argument("--no-skip-empty", dest='skip_empty', action="store_false",
+                        help="Also use the empty images")
+    parser.set_defaults(skip_empty=True)
     parser.add_argument('--data-layout', default="channels_last", choices=['channels_first', 'channels_last'],
                         help="Model data layout. It's recommended to use channels_first with --no-amp")
     parser.add_argument('--log-interval', type=int, default=20,
@@ -158,10 +161,13 @@ def train(train_loop_func, logger, args):
     encoder = Encoder(dboxes)
     cocoGt = get_coco_ground_truth(args)
 
-    train_loader = get_train_loader(args, args.seed - 2**31)
+    train_loader = get_train_loader(args, args.seed - 2**31, skip_empty=args.skip_empty)
 
     val_dataset = get_val_dataset(args)
     val_dataloader = get_val_dataloader(val_dataset, args)
+
+    test_dataset = get_test_dataset(args)
+    test_dataloader = get_val_dataloader(test_dataset, args)
 
     ssd300 = SSD300(backbone=ResNet(backbone=args.backbone,
                                     backbone_path=args.backbone_path,
@@ -200,6 +206,12 @@ def train(train_loop_func, logger, args):
     total_time = 0
 
     if args.mode == 'evaluation':
+        acc = evaluate(ssd300, val_dataloader, cocoGt, encoder, inv_map, args)
+        if args.local_rank == 0:
+            print('Model precision {} mAP'.format(acc))
+        return
+
+    if args.mode == 'testing':
         acc = evaluate(ssd300, val_dataloader, cocoGt, encoder, inv_map, args)
         if args.local_rank == 0:
             print('Model precision {} mAP'.format(acc))
@@ -268,6 +280,7 @@ def log_params(logger, args):
         "num workers": args.num_workers,
         "AMP": args.amp,
         "precision": 'amp' if args.amp else 'fp32',
+        "skip_empty": args.skip_empty
     })
 
 if __name__ == "__main__":
