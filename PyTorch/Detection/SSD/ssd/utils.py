@@ -460,7 +460,7 @@ class SSDTransformer(object):
 
 # Implement a datareader for COCO dataset
 class COCODetection(data.Dataset):
-    def __init__(self, img_folder, annotate_file, transform=None, skip_empty=False):
+    def __init__(self, img_folder, annotate_file, transform=None, skip_empty=True):
         self.img_folder = img_folder
         self.annotate_file = annotate_file
 
@@ -504,6 +504,7 @@ class COCODetection(data.Dataset):
 
         self.img_keys = list(self.images.keys())
         self.transform = transform
+        print(f"Loaded dataset with  {len(self.images)} images, skip_empty : {skip_empty}")
 
     @property
     def labelnum(self):

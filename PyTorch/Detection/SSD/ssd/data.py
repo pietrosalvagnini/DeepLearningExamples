@@ -19,7 +19,7 @@ from torch.utils.data import DataLoader
 
 from ssd.utils import dboxes300_coco, COCODetection
 from ssd.utils import SSDTransformer
-#from pycocotools.coco import COCO
+from pycocotools.coco import COCO
 #DALI import
 from ssd.coco_pipeline import COCOPipeline, DALICOCOIterator
 
@@ -55,7 +55,7 @@ def get_val_dataset(args):
     val_annotate = os.path.join(args.data, "validation_ann.json")
     val_coco_root = os.path.join(args.data, "validation_images")
 
-    val_coco = COCODetection(val_coco_root, val_annotate, val_trans)
+    val_coco = COCODetection(val_coco_root, val_annotate, val_trans, skip_empty=args.skip_empty)
     return val_coco
 
 def get_test_dataset(args):
@@ -67,7 +67,7 @@ def get_test_dataset(args):
     val_annotate = os.path.join(args.data, "test_ann.json")
     val_coco_root = os.path.join(args.data, "test_images")
 
-    val_coco = COCODetection(val_coco_root, val_annotate, val_trans)
+    val_coco = COCODetection(val_coco_root, val_annotate, val_trans, skip_empty=args.skip_empty)
     return val_coco
 
 def get_val_dataloader(dataset, args):
