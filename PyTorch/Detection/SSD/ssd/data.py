@@ -47,6 +47,8 @@ def get_val_dataset(args):
     dboxes = dboxes300_coco()
     val_trans = SSDTransformer(dboxes, (300, 300), val=True)
 
+    #val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
+    #val_coco_root = os.path.join(args.data, "val2017")
     val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
     val_coco_root = os.path.join(args.data, "val2017")
 
