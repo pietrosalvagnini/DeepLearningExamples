@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
 
-    mode = "validation" #"train" #"test"
+    mode = "test" #"train" #"test"
     # Train logger
     if mode == "train":
         logger_files = []
@@ -96,13 +96,15 @@ if __name__ == "__main__":
         plt.show()
 
     else:
-        base_folder = "/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/log/tests"
+        #base_folder = "/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/log/tests"
+        base_folder = "/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/log/tests/bestmap"
         files = sorted(os.listdir(base_folder))
         for ifile in files:
             filepath = os.path.join(base_folder, ifile)
-            if not "_epoch64" in ifile or not "_noskipempty.log" in ifile:
-                continue
+            #if not "_epoch64" in ifile or not "_noskipempty.log" in ifile:
+            #    continue
             with open(filepath) as ifp:
                 lines = [x.strip() for x in ifp.readlines()]
-            print(f"{ifile}: {lines[-13]}")
+            if len(lines) > 100:
+                print(f"{ifile}: {lines[-1]} - {lines[-13]}")
 

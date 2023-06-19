@@ -85,11 +85,17 @@ def main(checkpoint_path, imgs):
     return best_results
 
 if __name__ == '__main__':
+#    best_results = main(
+#            checkpoint_path='/checkpoints/SSD300v1.1.pt',
+#            imgs=[ 'http://images.cocodataset.org/val2017/000000397133.jpg',
+#                   'http://images.cocodataset.org/val2017/000000037777.jpg',
+#                   'http://images.cocodataset.org/val2017/000000252219.jpg',
+#                 ]
+#    )
+
     best_results = main(
-            checkpoint_path='/checkpoints/SSD300v1.1.pt',
-            imgs=[ 'http://images.cocodataset.org/val2017/000000397133.jpg',
-                   'http://images.cocodataset.org/val2017/000000037777.jpg',
-                   'http://images.cocodataset.org/val2017/000000252219.jpg',
-                 ]
+        checkpoint_path="/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/train_pos-1_negratio0.1_noskipempty_exp1/epoch_52.pt",
+        imgs=["/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/real_colon_dataset_coco_fmt_3subsets_poslesion10_negratio0/validation_images/002-011_3076.jpg",
+              "/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/real_colon_dataset_coco_fmt_3subsets_poslesion10_negratio0/validation_images/002-011_24267.jpg"]
     )
     print(best_results)
