@@ -160,16 +160,10 @@ def train(train_loop_func, logger, args):
     dboxes = dboxes300_coco()
     encoder = Encoder(dboxes)
     cocoGt_val = get_coco_ground_truth_validation(args)
-    cocoGt_test = get_coco_ground_truth_test(args)
-
     train_loader = get_train_loader(args, args.seed - 2**31)
 
     val_dataset = get_val_dataset(args)
     val_dataloader = get_val_dataloader(val_dataset, args)
-
-    test_dataset = get_test_dataset(args)
-    test_dataloader = get_val_dataloader(test_dataset, args)
-
     ssd300 = SSD300(backbone=ResNet(backbone=args.backbone,
                                     backbone_path=args.backbone_path,
                                     weights=args.torchvision_weights_version))
@@ -213,6 +207,9 @@ def train(train_loop_func, logger, args):
         return
 
     if args.mode == 'testing':
+        cocoGt_test = get_coco_ground_truth_test(args)
+        test_dataset = get_test_dataset(args)
+        test_dataloader = get_val_dataloader(test_dataset, args)
         acc = evaluate(ssd300, test_dataloader, cocoGt_test, encoder, inv_map, args)
         if args.local_rank == 0:
             print('Model precision {} mAP'.format(acc))
@@ -235,8 +232,8 @@ def train(train_loop_func, logger, args):
             logger.update_epoch_time(epoch, end_epoch_time)
 
         if epoch in args.evaluation:
-            acc = evaluate(ssd300, val_dataloader, cocoGt, encoder, inv_map, args)
-
+            acc = evaluate(ssd300, val_dataloader, cocoGt_val, encoder, inv_map, args)
+            logger.log('validation accuracy', acc)
             if args.local_rank == 0:
                 logger.update_epoch(epoch, acc)
 
