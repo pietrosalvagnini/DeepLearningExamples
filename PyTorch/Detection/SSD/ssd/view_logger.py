@@ -106,5 +106,5 @@ if __name__ == "__main__":
             with open(filepath) as ifp:
                 lines = [x.strip() for x in ifp.readlines()]
             if len(lines) > 100:
-                print(f"{ifile}: {lines[-1]} - {lines[-13]}")
+                print(f"{ifile}: {lines[-1]} - {lines[-13]} - {lines[-6]}")
 
