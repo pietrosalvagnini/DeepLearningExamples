@@ -599,8 +599,8 @@ def draw_patches(img, bboxes, labels, order="xywh", label_map={}):
 
 if __name__ == "__main__":
 
-    #dataset_folder = "/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/real_colon_dataset_coco_fmt_3subsets_poslesion-1_allnegTrue"
-    dataset_folder = "/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/real_colon_dataset_coco_fmt_3subsets_poslesion1000_allnegFalse"
+    # Run this code to test the loading of the validation and test splits for dataset converted in COCO format
+    dataset_folder = "/path/to/dataset/folder"
     dboxes = dboxes300_coco()
     val_trans = SSDTransformer(dboxes, (300, 300), val=True)
 
