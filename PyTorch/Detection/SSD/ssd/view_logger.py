@@ -18,6 +18,24 @@ import os.path
 import numpy as np
 import matplotlib.pyplot as plt
 
+def replace_string(in_string):
+    if in_string == "Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] ":
+        return "AP"
+    elif in_string == "Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] ":
+        return "AP_{50}"
+    elif in_string == "Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] ":
+        return "AP_{75}"
+    elif in_string == "Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] ":
+        return "AP_{S}"
+    elif in_string == "Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] ":
+        return "AP_{M}"
+    elif in_string == "Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] ":
+        return "AP_{L}"
+    else:
+        print(f"WWWW {in_string}")
+        return in_string
+
+
 if __name__ == "__main__":
 
     mode = "test" #"train" #"test"
@@ -99,12 +117,27 @@ if __name__ == "__main__":
         #base_folder = "/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/log/tests"
         base_folder = "/mnt/poranonna/ssd/storage/shared/pietro/demo/gtc_demo/data/log/tests/bestmap"
         files = sorted(os.listdir(base_folder))
-        for ifile in files:
+        for ifile in files[::-1]:
             filepath = os.path.join(base_folder, ifile)
             #if not "_epoch64" in ifile or not "_noskipempty.log" in ifile:
             #    continue
+            if not "_noskipempty.log" in ifile:
+                continue
             with open(filepath) as ifp:
                 lines = [x.strip() for x in ifp.readlines()]
             if len(lines) > 100:
-                print(f"{ifile}: {lines[-1]} - {lines[-13]} - {lines[-6]}")
+                #print(f"{ifile}: {lines[-1]} - {lines[-13]} - {lines[-6]}")
+                #string_out = f"{ifile} & " + " & ".join([str(float(lines[-k].split("=")[-1])) for k in np.arange(14,3,-1)]) + "\\\\ \hline"
+                string_out = f"{ifile[:25]} & " + " & ".join([str(float(lines[-k].split("=")[-1])) for k in np.arange(14,8,-1)]) + "\\\\ \hline"
+                print(string_out )
+
+        #string_out = f"FileName & " + " & ".join(["=".join(lines[-k].split("=")[:-1]) for k in np.arange(14, 8, -1)]) + "\\\\ \hline"
+        #string_out = f"FileName & " + " & ".join(["=".join(lines[-k].split("=")[:-1]).replace(
+        #    "Average Precision", "").replace("Average Recall", "").replace("area=", "").replace(
+        #    "maxDets=", "") for k in np.arange(14, 3, -1)]) + "\\\\ \hline"
+        string_out = f"FileName & " + " & ".join(
+            [replace_string("=".join(lines[-k].split("=")[:-1])) for k in np.arange(14, 8, -1)]) + "\\\\ \hline"
+
+        print(string_out)
+
 
