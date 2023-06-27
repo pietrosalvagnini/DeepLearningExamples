@@ -26,7 +26,8 @@ from ssd.coco_pipeline import COCOPipeline, DALICOCOIterator
 def get_train_loader(args, local_seed):
     train_annotate = os.path.join(args.data, "train_ann.json")
     train_coco_root = os.path.join(args.data, "train_images")
-    num_train_images = 100000 # we either set a fixed number of images per epoch or setting it to the total number of images available in the training set
+    num_train_images = 100000
+    # we can either set a fixed number of images per epoch or setting it to the total number of images available in the training set
     # using num_train_images = len(os.listdir(train_coco_root)) (pay attention that in this case also the frames without boxes would be included in the counting)
     print(f"Setting epoch size to {num_train_images}, 'skip_empty': {args.skip_empty}")
 
