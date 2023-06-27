@@ -24,13 +24,12 @@ from pycocotools.coco import COCO
 from ssd.coco_pipeline import COCOPipeline, DALICOCOIterator
 
 def get_train_loader(args, local_seed):
-#    train_annotate = os.path.join(args.data, "annotations/instances_train2017.json")
-#    train_coco_root = os.path.join(args.data, "train2017")
     train_annotate = os.path.join(args.data, "train_ann.json")
     train_coco_root = os.path.join(args.data, "train_images")
-    num_train_images = len(os.listdir(train_coco_root))
+    num_train_images = 100000 # we either set a fixed number of images per epoch or setting it to the total number of images available in the training set
+    # using num_train_images = len(os.listdir(train_coco_root)) (pay attention that in this case also the frames without boxes would be included in the counting)
     print(f"Setting epoch size to {num_train_images}, 'skip_empty': {args.skip_empty}")
-    #num_train_images = 100000
+
 
     train_pipe = COCOPipeline(batch_size=args.batch_size,
         file_root=train_coco_root,
@@ -44,7 +43,6 @@ def get_train_loader(args, local_seed):
         num_threads=args.num_workers, seed=local_seed, skip_empty=args.skip_empty)
     train_pipe.build()
     test_run = train_pipe.schedule_run(), train_pipe.share_outputs(), train_pipe.release_outputs()
-    num_images_per_batch = num_train_images
     train_loader = DALICOCOIterator(train_pipe, num_train_images / args.N_gpu)
     return train_loader
 
@@ -52,9 +50,6 @@ def get_train_loader(args, local_seed):
 def get_val_dataset(args):
     dboxes = dboxes300_coco()
     val_trans = SSDTransformer(dboxes, (300, 300), val=True)
-
-    #val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
-    #val_coco_root = os.path.join(args.data, "val2017")
     val_annotate = os.path.join(args.data, "validation_ann.json")
     val_coco_root = os.path.join(args.data, "validation_images")
 
@@ -64,9 +59,6 @@ def get_val_dataset(args):
 def get_test_dataset(args):
     dboxes = dboxes300_coco()
     val_trans = SSDTransformer(dboxes, (300, 300), val=True)
-
-    #val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
-    #val_coco_root = os.path.join(args.data, "val2017")
     val_annotate = os.path.join(args.data, "test_ann.json")
     val_coco_root = os.path.join(args.data, "test_images")
 
@@ -88,7 +80,6 @@ def get_val_dataloader(dataset, args):
     return val_dataloader
 
 def get_coco_ground_truth_validation(args):
-#    val_annotate = os.path.join(args.data, "annotations/instances_val2017.json")
     val_annotate = os.path.join(args.data, "validation_ann.json")
     cocoGt = COCO(annotation_file=val_annotate, use_ext=True)
     return cocoGt

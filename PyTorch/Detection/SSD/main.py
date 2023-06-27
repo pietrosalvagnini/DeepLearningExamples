@@ -233,7 +233,6 @@ def train(train_loop_func, logger, args):
 
         if epoch in args.evaluation:
             acc = evaluate(ssd300, val_dataloader, cocoGt_val, encoder, inv_map, args)
-            logger.log('validation accuracy', acc)
             if args.local_rank == 0:
                 logger.update_epoch(epoch, acc)
 
